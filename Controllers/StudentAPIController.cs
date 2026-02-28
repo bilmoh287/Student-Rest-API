@@ -11,10 +11,17 @@ namespace StudentAPI.Controllers
     [ApiController]
     public class StudentAPIController : ControllerBase
     {
-        [HttpGet]
+        [HttpGet("All", Name = "GetAllStudents")]
         public ActionResult<IEnumerable<Student>> GetAllStudents()
         {
             return Ok(StudentDataSimulationcs.StudentsList);
+        }
+
+        [HttpGet("Passed", Name = "PassedStudents")]
+        public ActionResult<IEnumerable<Student>> PassedStudents()
+        {
+            var PassedSudents = StudentDataSimulationcs.StudentsList.Where(Student => Student.Grade >= 50).ToList();
+            return Ok(PassedSudents);
         }
     }
 }
