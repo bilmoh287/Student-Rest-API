@@ -16,7 +16,7 @@ namespace StudentAPI.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public ActionResult<IEnumerable<Student>> GetAllStudents()
         {
-            return Ok(StudentDataSimulationcs.StudentsList);
+            return Ok(StudentDataSimulation.StudentsList);
         }
 
         [HttpGet("Passed", Name = "PassedStudents")]
@@ -24,7 +24,7 @@ namespace StudentAPI.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public ActionResult<IEnumerable<Student>> PassedStudents()
         {
-            var PassedSudents = StudentDataSimulationcs.StudentsList.Where(Student => Student.Grade >= 50).ToList();
+            var PassedSudents = StudentDataSimulation.StudentsList.Where(Student => Student.Grade >= 50).ToList();
             return Ok(PassedSudents);
         }
 
@@ -34,12 +34,12 @@ namespace StudentAPI.Controllers
         public ActionResult<IEnumerable<Student>> GetAverageGrade()
         {
             //StudentDataSimulationcs.StudentsList.Clear();
-            if(StudentDataSimulationcs.StudentsList.Count == 0)
+            if(StudentDataSimulation.StudentsList.Count == 0)
             {
                 return NotFound("No Students Found!");
             }
 
-            var AverageGrade = StudentDataSimulationcs.StudentsList.Average(Student => Student.Grade);
+            var AverageGrade = StudentDataSimulation.StudentsList.Average(Student => Student.Grade);
             return Ok(AverageGrade);
         }
 
@@ -54,13 +54,29 @@ namespace StudentAPI.Controllers
                 return BadRequest("");
             }
 
-            var Student = StudentDataSimulationcs.StudentsList.FirstOrDefault(Student => Student.ID == id);
+            var Student = StudentDataSimulation.StudentsList.FirstOrDefault(Student => Student.ID == id);
 
             if (Student == null)
             {
                 return NotFound($"Student with id {id} is Not Found");
             }
             return Ok(Student);
+        }
+
+        [HttpPost(Name = "AddStudent")]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public ActionResult<Student> AddStudent (Student newStudent)
+        {
+            if(newStudent == null || string.IsNullOrEmpty(newStudent.Name) || newStudent.Age <= 0 || newStudent.Grade < 0)
+            {
+                return BadRequest("Invalid Student data!");
+            }
+
+            newStudent.ID = StudentDataSimulation.StudentsList.Count > 0 ? StudentDataSimulation.StudentsList.Max(s => s.ID) + 1 : 1;
+            StudentDataSimulation.StudentsList.Add(newStudent);
+
+            return CreatedAtRoute("GetStudentByID", new { id = newStudent.ID }, newStudent);
         }
     }
 }

@@ -2,7 +2,7 @@
 
 namespace StudentAPI.DataSimulation
 {
-    public class StudentDataSimulationcs
+    public class StudentDataSimulation
     {
         // Static list of students, acting as an in-memory data store, you can change it later on to retrieve students from Database.
         public static readonly List<Student> StudentsList = new List<Student>
