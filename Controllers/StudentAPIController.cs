@@ -98,6 +98,7 @@ namespace StudentAPI.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public ActionResult DeleteStudent(int id)
         {
             if (id < 1)
@@ -105,15 +106,18 @@ namespace StudentAPI.Controllers
                 return BadRequest($"Not Accepted ID {id}");
             }
 
-            var Student = StudentDataSimulation.StudentsList.FirstOrDefault(Student => Student.ID == id);
+            //var Student = StudentDataSimulation.StudentsList.FirstOrDefault(Student => Student.ID == id);
+            StudentAPIBusinessLayer.clsStudent Student = StudentAPIBusinessLayer.clsStudent.FindStudentByID(id);
 
             if (Student == null)
             {
                 return NotFound($"Student with id {id} is Not Found");
             }
 
-            StudentDataSimulation.StudentsList.Remove(Student);
-            return Ok($"Student with ID {id} has been Deleted!");
+            if(StudentAPIBusinessLayer.clsStudent.DeleteStudent(id))
+                return Ok($"Student with id {id} has been deleted!");
+            else
+                return StatusCode(500, new { message = "Error Deleting Student" });
         }
 
         [HttpPut("{id}", Name = "UpdateStudent")]
