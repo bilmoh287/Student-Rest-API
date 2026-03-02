@@ -34,7 +34,7 @@ namespace StudentAPI.Controllers
         public ActionResult<IEnumerable<Student>> GetAverageGrade()
         {
             //StudentDataSimulationcs.StudentsList.Clear();
-            if(StudentDataSimulation.StudentsList.Count == 0)
+            if (StudentDataSimulation.StudentsList.Count == 0)
             {
                 return NotFound("No Students Found!");
             }
@@ -51,7 +51,7 @@ namespace StudentAPI.Controllers
         {
             if (id < 1)
             {
-                return BadRequest("");
+                return BadRequest($"Invalid id {id}");
             }
 
             var Student = StudentDataSimulation.StudentsList.FirstOrDefault(Student => Student.ID == id);
@@ -66,9 +66,9 @@ namespace StudentAPI.Controllers
         [HttpPost(Name = "AddStudent")]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public ActionResult<Student> AddStudent (Student newStudent)
+        public ActionResult<Student> AddStudent(Student newStudent)
         {
-            if(newStudent == null || string.IsNullOrEmpty(newStudent.Name) || newStudent.Age <= 0 || newStudent.Grade < 0)
+            if (newStudent == null || string.IsNullOrEmpty(newStudent.Name) || newStudent.Age <= 0 || newStudent.Grade < 0)
             {
                 return BadRequest("Invalid Student data!");
             }
@@ -77,6 +77,52 @@ namespace StudentAPI.Controllers
             StudentDataSimulation.StudentsList.Add(newStudent);
 
             return CreatedAtRoute("GetStudentByID", new { id = newStudent.ID }, newStudent);
+        }
+
+        [HttpDelete("{id}", Name = "DeleteStudent")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public ActionResult DeleteStudent(int id)
+        {
+            if (id < 1)
+            {
+                return BadRequest($"Not Accepted ID {id}");
+            }
+
+            var Student = StudentDataSimulation.StudentsList.FirstOrDefault(Student => Student.ID == id);
+
+            if (Student == null)
+            {
+                return NotFound($"Student with id {id} is Not Found");
+            }
+
+            StudentDataSimulation.StudentsList.Remove(Student);
+            return Ok($"Student with ID {id} has been Deleted!");
+        }
+
+        [HttpPut("{id}", Name = "UpdateStudent")]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public ActionResult<Student> UpdateStudent(int id, Student updatedStudent)
+        {
+            if (updatedStudent == null || string.IsNullOrEmpty(updatedStudent.Name) || updatedStudent.Age <= 0 || updatedStudent.Grade < 0)
+            {
+                return BadRequest("Invalid Student data!");
+            }
+
+            var Student = StudentDataSimulation.StudentsList.FirstOrDefault(Student => Student.ID == id);
+            if (Student == null)
+            {
+                return NotFound($"Student with id {id} is Not Found");
+            }
+
+            Student.Name = updatedStudent.Name;
+            Student.Age = updatedStudent.Age;
+            Student.Grade = updatedStudent.Grade;
+            
+            return Ok(Student);
         }
     }
 }
