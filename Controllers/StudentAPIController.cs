@@ -120,14 +120,16 @@ namespace StudentAPI.Controllers
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public ActionResult<Student> UpdateStudent(int id, Student updatedStudent)
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public ActionResult<StudentDTO> UpdateStudent(int id, StudentDTO updatedStudent)
         {
             if (updatedStudent == null || string.IsNullOrEmpty(updatedStudent.Name) || updatedStudent.Age <= 0 || updatedStudent.Grade < 0)
             {
                 return BadRequest("Invalid Student data!");
             }
 
-            var Student = StudentDataSimulation.StudentsList.FirstOrDefault(Student => Student.ID == id);
+            //var Student = StudentDataSimulation.StudentsList.FirstOrDefault(Student => Student.ID == id);
+            StudentAPIBusinessLayer.clsStudent Student = StudentAPIBusinessLayer.clsStudent.FindStudentByID(id);
             if (Student == null)
             {
                 return NotFound($"Student with id {id} is Not Found");
@@ -136,8 +138,11 @@ namespace StudentAPI.Controllers
             Student.Name = updatedStudent.Name;
             Student.Age = updatedStudent.Age;
             Student.Grade = updatedStudent.Grade;
-            
-            return Ok(Student);
+
+            if (Student.Save())
+                return Ok(Student.SDTO);
+            else
+                return StatusCode(500, new { message = "Error Updating Student" }); 
         }
     }
 }
