@@ -29,24 +29,25 @@ namespace StudentAPI.Controllers
         [HttpGet("Passed", Name = "PassedStudents")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public ActionResult<IEnumerable<Student>> PassedStudents()
+        public ActionResult<IEnumerable<StudentDTO>> PassedStudents()
         {
-            var PassedSudents = StudentDataSimulation.StudentsList.Where(Student => Student.Grade >= 50).ToList();
-            return Ok(PassedSudents);
+            List<StudentDTO> StudentsList = StudentAPIBusinessLayer.clsStudent.GetPassedStudents();
+            if (StudentsList.Count == 0)
+            {
+                return NotFound("No Student Found!");
+            }
+            return Ok(StudentsList);
         }
 
         [HttpGet("Average", Name = "GetAverageGrade")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public ActionResult<IEnumerable<Student>> GetAverageGrade()
+        public ActionResult<double> GetAverageGrade()
         {
             //StudentDataSimulationcs.StudentsList.Clear();
-            if (StudentDataSimulation.StudentsList.Count == 0)
-            {
-                return NotFound("No Students Found!");
-            }
 
-            var AverageGrade = StudentDataSimulation.StudentsList.Average(Student => Student.Grade);
+            //var AverageGrade = StudentDataSimulation.StudentsList.Average(Student => Student.Grade);
+            var AverageGrade = StudentAPIBusinessLayer.clsStudent.GetAverageGrade();
             return Ok(AverageGrade);
         }
 
