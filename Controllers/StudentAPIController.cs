@@ -62,13 +62,17 @@ namespace StudentAPI.Controllers
                 return BadRequest($"Invalid id {id}");
             }
 
-            var Student = StudentDataSimulation.StudentsList.FirstOrDefault(Student => Student.ID == id);
+            //var Student = StudentDataSimulation.StudentsList.FirstOrDefault(Student => Student.ID == id);
+            var Student = StudentAPIBusinessLayer.clsStudent.FindStudentByID(id);
 
             if (Student == null)
             {
                 return NotFound($"Student with id {id} is Not Found");
             }
-            return Ok(Student);
+
+            // he we return the DTO not the enire object becase the API is stateless
+            StudentDTO SDTO = Student.SDTO;
+            return Ok(SDTO);
         }
 
         [HttpPost(Name = "AddStudent")]
