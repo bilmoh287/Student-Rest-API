@@ -55,7 +55,7 @@ namespace StudentAPI.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public ActionResult<IEnumerable<Student>> GetStudentByID(int id)
+        public ActionResult<StudentDTO> GetStudentByID(int id)
         {
             if (id < 1)
             {
@@ -78,17 +78,20 @@ namespace StudentAPI.Controllers
         [HttpPost(Name = "AddStudent")]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public ActionResult<Student> AddStudent(Student newStudent)
+        public ActionResult<StudentDTO> AddStudent(StudentDTO newStudent)
         {
             if (newStudent == null || string.IsNullOrEmpty(newStudent.Name) || newStudent.Age <= 0 || newStudent.Grade < 0)
             {
                 return BadRequest("Invalid Student data!");
             }
 
-            newStudent.ID = StudentDataSimulation.StudentsList.Count > 0 ? StudentDataSimulation.StudentsList.Max(s => s.ID) + 1 : 1;
-            StudentDataSimulation.StudentsList.Add(newStudent);
+            //newStudent.ID = StudentDataSimulation.StudentsList.Count > 0 ? StudentDataSimulation.StudentsList.Max(s => s.ID) + 1 : 1;
+            //StudentDataSimulation.StudentsList.Add(newStudent);
 
-            return CreatedAtRoute("GetStudentByID", new { id = newStudent.ID }, newStudent);
+            StudentAPIBusinessLayer.clsStudent student = new StudentAPIBusinessLayer.clsStudent(newStudent);
+            student.Save();
+            newStudent.Id = student.ID;
+            return CreatedAtRoute("GetStudentByID", new { id = newStudent.Id }, newStudent);
         }
 
         [HttpDelete("{id}", Name = "DeleteStudent")]
